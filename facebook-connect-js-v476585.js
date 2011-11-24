@@ -1949,6 +1949,24 @@ FB
 									.log('"method" is a required parameter for FB.ui().');
 							return null;
 						}
+
+						// If the nativeInterface arg is specified then call out to the nativeInterface
+						// which uses the native app rather than using the iframe / popup web
+						if (FB._nativeInterface) {
+							switch (f.method) {
+								case 'permissions.request':
+									FB._nativeInterface.login(b, f);
+									break;
+								case 'auth.logout':
+									FB._nativeInterface.logout(b);
+									break;
+								case 'auth.status':
+									FB._nativeInterface.getLoginStatus(b);
+									break;
+							}
+							return;
+						}
+
 						if ((f.method == 'permissions.request' || f.method == 'permissions.oauth')
 								&& (f.display == 'iframe' || f.display == 'dialog')) {
 							var h;
@@ -2984,6 +3002,15 @@ FB.provide('', {
 		});
 		FB._userID = 0;
 		FB._apiKey = a.appId || a.apiKey;
+
+		// start: init nativeInterface support
+		FB._nativeInterface = a.nativeInterface;
+
+		if (FB._nativeInterface) {
+			FB._nativeInterface.init(FB._apiKey);
+		}
+		// end: init nativeInterface support
+
 		FB._oauth = FB.forceOAuth || !!a.oauth;
 		if (!a.logging && window.location.toString().indexOf('fb_debug=1') < 0)
 			FB._logging = false;
