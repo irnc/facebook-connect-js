@@ -890,6 +890,8 @@ FB
 						return e;
 					},
 					handler : function(a, f, c, d, b) {
+						console.log('FB.XD.handler() called');
+
 						if (window.location.toString().indexOf(
 								FB.XD.Fragment._magic) > 0)
 							return 'javascript:false;//';
@@ -1952,18 +1954,22 @@ FB
 
 						// If the nativeInterface arg is specified then call out to the nativeInterface
 						// which uses the native app rather than using the iframe / popup web
+						console.log('FB.ui() called: ' + f.method);
+
 						if (FB._nativeInterface) {
 							switch (f.method) {
-								case 'permissions.request':
+								case 'permissions.oauth':
 									FB._nativeInterface.login(b, f);
 									break;
 								case 'auth.logout':
 									FB._nativeInterface.logout(b);
 									break;
-								case 'auth.status':
+								case 'login.status':
+									console.log('before FB._nativeInterface.getLoginStatus() call');
 									FB._nativeInterface.getLoginStatus(b);
 									break;
 							}
+
 							return;
 						}
 
@@ -1995,6 +2001,9 @@ FB
 						} else if (d === 'none')
 							d = 'hidden';
 						var c = FB.UIServer[d];
+
+						console.log('Using FB.UIServer.' + d);
+
 						if (!c) {
 							FB
 									.log('"display" must be one of "popup", '
@@ -2122,6 +2131,8 @@ FB
 							return 'parent.frames[' + window.name + ']';
 					},
 					popup : function(b) {
+						console.log('FB.UIServer.popup() called, url = ' + b.url);
+
 						var a = typeof window.screenX != 'undefined' ? window.screenX
 								: window.screenLeft, i = typeof window.screenY != 'undefined' ? window.screenY
 								: window.screenTop, g = typeof window.outerWidth != 'undefined' ? window.outerWidth
@@ -2186,6 +2197,8 @@ FB
 						FB.UIServer._insertIframe(a);
 					},
 					touch : function(a) {
+						console.log('FB.UIServer.touch() called, url = ' + a.url);
+
 						if (a.params && a.params.in_iframe) {
 							if (a.ui_created) {
 								FB.Dialog.showLoader(function() {
@@ -2380,6 +2393,8 @@ FB
 				});
 FB.provide('', {
 	getLoginStatus : function(a, b) {
+		console.log('FB.getLoginStatus() called');
+
 		if (!FB._apiKey) {
 			FB.log('FB.getLoginStatus() called before calling FB.init().');
 			return;
@@ -2419,6 +2434,8 @@ FB.provide('', {
 				method : 'auth.status',
 				display : 'hidden'
 			}, c);
+
+		console.log('FB.getLoginStatus() finished');
 	},
 	getSession : function() {
 		if (FB._oauth)
@@ -2472,12 +2489,16 @@ FB
 					_callbacks : [],
 					_xdStorePath : 'xd_localstorage/',
 					staticAuthCheck : function(b) {
+						console.log('FB.Auth.staticAuthCheck() called');
+
 						var a = FB.getDomain('https_staticfb');
 						FB.Content.insertIframe({
 							root : FB.Content.appendHidden(''),
 							className : 'FB_UI_Hidden',
 							url : a + FB.Auth._xdStorePath,
 							onload : function(f) {
+								console.log('FB.Auth.staticAuthCheck(): onload');
+
 								var g = frames[f.name];
 								var d = FB.guid();
 								var e = false;
@@ -2489,6 +2510,16 @@ FB
 								};
 								FB.XD.handler(c, 'parent', true, d);
 								setTimeout(c, 500);
+
+								console.log('FB.Auth.staticAuthCheck(): onload: postMessage: ' + FB.JSON
+										.stringify({
+											method : 'getItem',
+											params : [
+													'LoginInfo_' + FB._apiKey,
+													true ],
+											returnCb : d
+										}) + ' --- ' + a);
+
 								g.postMessage(FB.JSON
 										.stringify({
 											method : 'getItem',
@@ -2497,10 +2528,14 @@ FB
 													true ],
 											returnCb : d
 										}), a);
+
+								console.log('FB.Auth.staticAuthCheck(): onload: postMessage: posted');
 							}
 						});
 					},
 					_staticAuthHandler : function(b, d) {
+						console.log('FB.Auth._staticAuthHandler() called');
+
 						if (d && d.data && d.data.status
 								&& d.data.status == 'connected') {
 							var c;
@@ -2996,6 +3031,8 @@ FB.provide('Frictionless', {
 FB.provide('', {
 	initSitevars : {},
 	init : function(a) {
+		console.log('FB.init() called');
+
 		a = FB.copy(a || {}, {
 			logging : true,
 			status : true
@@ -3007,6 +3044,7 @@ FB.provide('', {
 		FB._nativeInterface = a.nativeInterface;
 
 		if (FB._nativeInterface) {
+			console.log('FB.init: native interface support enabled');
 			FB._nativeInterface.init(FB._apiKey);
 		}
 		// end: init nativeInterface support
@@ -3014,6 +3052,9 @@ FB.provide('', {
 		FB._oauth = FB.forceOAuth || !!a.oauth;
 		if (!a.logging && window.location.toString().indexOf('fb_debug=1') < 0)
 			FB._logging = false;
+
+		console.log('FB._logging is ' + FB._logging);
+
 		if (FB.initSitevars.enableMobile)
 			FB.UA._enableMobile = true;
 		FB.XD.init(a.channelUrl);
@@ -3044,6 +3085,7 @@ FB.provide('', {
 			if (a.status)
 				FB.getLoginStatus();
 		}
+
 		if (FB._inCanvas) {
 			FB.Canvas._setHideFlashCallback(a.hideFlashCallback);
 			FB.Canvas.init();
@@ -3068,6 +3110,8 @@ FB.provide('', {
 			}, 0);
 		if (FB.Canvas && FB.Canvas.Prefetcher)
 			FB.Canvas.Prefetcher._maybeSample();
+
+		console.log('DDDD');
 	}
 });
 FB
