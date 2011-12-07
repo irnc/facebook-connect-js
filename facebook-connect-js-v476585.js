@@ -1,5 +1,7 @@
 /*1322079169,169912450,JIT Construction: v476585,en_US*/
 
+console.log("Start executing 'facebook-connect-js-with-native-interface.js'");
+
 if (!window.FB)
 	window.FB = {
 		_apiKey : null,
@@ -1954,7 +1956,7 @@ FB
 
 						// If the nativeInterface arg is specified then call out to the nativeInterface
 						// which uses the native app rather than using the iframe / popup web
-						console.log('FB.ui() called: ' + f.method);
+						console.groupCollapsed("Executing FB.ui() with method = " + f.method);
 
 						if (FB._nativeInterface) {
 							switch (f.method) {
@@ -1970,6 +1972,7 @@ FB
 									break;
 							}
 
+							console.groupEnd();
 							return;
 						}
 
@@ -1993,8 +1996,11 @@ FB
 							}
 						}
 						var a = FB.UIServer.prepareCall(f, b);
-						if (!a)
+						if (!a) {
+							console.log("TODO: document return");
+							console.groupEnd();
 							return null;
+						}
 						var d = a.params.display;
 						if (d === 'dialog') {
 							d = 'iframe';
@@ -2008,9 +2014,13 @@ FB
 							FB
 									.log('"display" must be one of "popup", '
 											+ '"dialog", "iframe", "touch", "async", "hidden", or "none"');
+							console.groupEnd();
 							return null;
 						}
 						c(a);
+
+						console.log("TODO: document return");
+						console.groupEnd();
 						return a.dialog;
 					}
 				});
@@ -3031,7 +3041,7 @@ FB.provide('Frictionless', {
 FB.provide('', {
 	initSitevars : {},
 	init : function(a) {
-		console.log('FB.init() called');
+		console.groupCollapsed('Executing FB.init()');
 
 		a = FB.copy(a || {}, {
 			logging : true,
@@ -3044,7 +3054,7 @@ FB.provide('', {
 		FB._nativeInterface = a.nativeInterface;
 
 		if (FB._nativeInterface) {
-			console.log('FB.init: native interface support enabled');
+			console.log('native interface support enabled');
 			FB._nativeInterface.init(FB._apiKey);
 		}
 		// end: init nativeInterface support
@@ -3111,7 +3121,7 @@ FB.provide('', {
 		if (FB.Canvas && FB.Canvas.Prefetcher)
 			FB.Canvas.Prefetcher._maybeSample();
 
-		console.log('DDDD');
+		console.groupEnd();
 	}
 });
 FB
@@ -6687,3 +6697,5 @@ if (FB.Dom && FB.Dom.addCssRules) {
 							"fb.css.sendbuttonformwidget",
 							"fb.css.plugin.recommendationsbar" ]);
 }
+
+console.log("Finish executing 'facebook-connect-js-with-native-interface.js'");
