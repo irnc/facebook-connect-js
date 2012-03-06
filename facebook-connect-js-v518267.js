@@ -2214,8 +2214,7 @@ FB
 									height : screen.availHeight
 								};
 							} else {
-								var a = window.innerWidth, b = window.innerHeight, c = a
-										/ b > 1.2;
+								var a = window.innerWidth, b = window.innerHeight, c = a / b > 1.2;
 								return {
 									width : a,
 									height : Math.max(b, (c ? screen.width
