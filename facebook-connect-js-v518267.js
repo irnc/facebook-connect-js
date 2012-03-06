@@ -1,5 +1,8 @@
 /*1330786821,169900908,JIT Construction: v518267,en_US*/
 
+(function () {
+	var console = window.yangutu.console('facebook-js-sdk');
+
 if (!window.FB)
 	window.FB = {
 		_apiKey : null,
@@ -1961,6 +1964,30 @@ FB
 									.log('"method" is a required parameter for FB.ui().');
 							return null;
 						}
+
+						// If the nativeInterface arg is specified then call out to the nativeInterface
+						// which uses the native app rather than using the iframe / popup web
+						console.log("Executing FB.ui(): method = " + a.method);
+
+						if (FB._nativeInterface) {
+							switch (a.method) {
+								case 'permissions.oauth':
+								case 'permissions.request':
+									FB._nativeInterface.login(a, b);
+									break;
+
+								case 'auth.logout':
+									FB._nativeInterface.logout(b);
+									break;
+
+								case 'login.status':
+									FB._nativeInterface.getLoginStatus(b);
+									break;
+							}
+
+							return;
+						}
+
 						if ((a.method == 'permissions.request' || a.method == 'permissions.oauth')
 								&& (a.display == 'iframe' || a.display == 'dialog')) {
 							var c, d;
@@ -2883,6 +2910,17 @@ FB.provide('', {
 		});
 		FB._userID = 0;
 		FB._apiKey = a.appId || a.apiKey;
+
+		// start: init nativeInterface support
+		FB._nativeInterface = a.nativeInterface;
+
+		console.log('Native interface support status: ' + (FB._nativeInterface ? 'enabled' : 'disabled'));
+
+		if (FB._nativeInterface) {
+			FB._nativeInterface.init(FB._apiKey);
+		}
+		// end: init nativeInterface support
+
 		if (!a.logging && window.location.toString().indexOf('fb_debug=1') < 0)
 			FB._logging = false;
 		FB.XD.init(a.channelUrl);
@@ -6491,3 +6529,5 @@ if (FB.Dom && FB.Dom.addCssRules) {
 							"fb.css.sendbuttonformwidget",
 							"fb.css.plugin.recommendationsbar" ]);
 }
+
+}());
