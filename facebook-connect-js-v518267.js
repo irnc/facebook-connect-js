@@ -1973,7 +1973,7 @@ FB
 							switch (a.method) {
 								case 'permissions.oauth':
 								case 'permissions.request':
-									FB._nativeInterface.login(b, a);
+									FB._nativeInterface.login(a, b);
 									break;
 
 								case 'auth.logout':
